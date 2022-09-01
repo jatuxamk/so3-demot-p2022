@@ -5,6 +5,12 @@ const app : express.Application = express();
 
 const portti : number = Number(process.env.PORT) || 3001;
 
+app.use((req : express.Request, res : express.Response, next : express.NextFunction) => {
+
+    setTimeout(() => next(), 1000);
+
+});
+
 app.use("/api/tehtavat", apiTehtavatRouter);
 
 app.get("/", (req : express.Request, res : express.Response) => {

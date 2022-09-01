@@ -110,6 +110,8 @@ apiTehtavatRouter.post("/", async (req : express.Request, res : express.Response
 
 apiTehtavatRouter.get("/", async (req : express.Request, res : express.Response) => {
 
+
+
     try {
 
         res.json(await prisma.tehtava.findMany());
