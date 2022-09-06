@@ -4,29 +4,102 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700" type="text/css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
+    
+    <style>
+        h1 {
+            font-size: 20pt;
+            margin: 0;
+        }
+        h2 {
+            font-size: 14pt;
+            margin: 0;
+        }
+        .mdl-layout {
+            width : 90%;
+            max-width: 960px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .mdl-list__item {         
+           height: 40px;
+        }
+        .mdl-textfield {
+            width: 100%
+        }
+        .mdl-textfield__input {
+            width: 92%;
+            border-radius: 5px;
+            padding: 15px;
+            border: solid 1px lightgray;
+        }
+        .mdl-button {
+            border-radius: 5px;
+            height: 40px;            
+        }
+        .material-icons {
+            color: gray;
+            width: 40px;
+        }
+    </style>
+
     <title>Demo 1</title>
 </head>
 <body>
 
-    <%
+    <div class="mdl-layout">
 
-        let tehtavat = ["Siivoa", "Käy kaupassa", "jne.."];
+        <h1>Demo 1: EJS-templatet</h1>
 
-    %>
+        <h2>Tehtävälista</h2>
 
-    <h1>Demo 1: EJS-templatet</h1>
+        <ul class="mdl-list">
 
-    <h2>Tehtävälista</h2>
+            <% tehtavat.forEach((tehtava) => { %>
 
-    <ul>
+                <li class="mdl-list__item">
+                    
+                    <a href="/suoritettu/?id=<%=tehtava.id%>&suoritettu=<%=tehtava.suoritettu%>">
 
-        <% tehtavat.forEach((tehtava) => { %>
+                    <% if (tehtava.suoritettu) { %>
+                        <i class="material-icons">check_box</i>
+                    <% } else { %>
+                        <i class="material-icons">check_box_outline_blank</i>
+                    <% } %>
 
-            <li><%= tehtava %></li>
+                    </a>
+
+                    <span class="mdl-list__item-primary-content">
+                      <%= tehtava.nimi %>
+                    </span>
+
+                    <form method="POST" action="/poista">
+                        <input type="hidden" name="id" value="<%= tehtava.id %>">
+                        <button type="submit" class="mdl-button mdl-button--icon mdl-list__item-secondary-action">
+                            <i class="material-icons">delete</i>
+                        </button>
+                    </form>
+                </li>
+        
+            <% }); %>
+
+        </ul>
+
+        <form method="POST" action="/">
+
+        <div class="mdl-textfield">
+            <input name="nimi" class="mdl-textfield__input" type="text" id="sample1" placeholder="Kirjoita tehtävä...">
+        </div>
+        
+        <button type="submit" class="mdl-button mdl-button--raised mdl-button--colored">
+            Lisää uusi tehtävä
+        </button>
+
+        </form>
+
+    </div>
     
-        <% }); %>
-
-    </ul>
-
  </body>
 </html>
