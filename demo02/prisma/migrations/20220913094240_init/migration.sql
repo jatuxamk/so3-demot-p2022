@@ -1,0 +1,7 @@
+-- CreateTable
+CREATE TABLE "kuva" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "teksti" TEXT NOT NULL,
+    "tiedosto" TEXT NOT NULL,
+    "pvm" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
