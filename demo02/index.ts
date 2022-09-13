@@ -10,6 +10,12 @@ app.set("view engine", "ejs");
 
 app.use(express.static(path.resolve(__dirname, "public")));
 
+app.get("/lisaa", async (req : express.Request, res : express.Response) => {
+  
+    res.render("lisaa");
+
+});
+
 app.get("/", async (req : express.Request, res : express.Response) => {
   
     res.render("index", { kuvat : await prisma.kuva.findMany() });
