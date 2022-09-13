@@ -6,7 +6,15 @@
 
         <% if (kuvat.length > 0) { %>
 
-            (Tässä pitäisi olla kuvia)
+            <% kuvat.forEach((kuva) => { %>
+
+                <h4><%=kuva.teksti%></h4>
+
+                <img src="/img/<%=kuva.tiedosto%>" alt="<%=kuva.teksti%>">
+
+                <p><%=kuva.pvm%></p>
+
+            <% }); %>
 
         <% } else { %>
 
