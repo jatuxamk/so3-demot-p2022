@@ -7,32 +7,70 @@ import fs from "fs/promises";
 const app : express.Application = express();
 const portti : number = Number(process.env.PORT) || 3002;
 const prisma : PrismaClient = new PrismaClient();
-const uploadKasittelija = multer({ dest : path.resolve(__dirname, "tmp") });
+const uploadKasittelija = multer({ 
+    dest : path.resolve(__dirname, "tmp"),
+    limits : {
+        fileSize : (1024 * 500)
+    },
+    fileFilter : (req, file, callback) => {
+
+        if (["jpg", "jpeg"].includes(file.mimetype.split("/")[1]) ) {
+
+            callback(null, true);
+
+        } else {
+
+            callback(new Error());
+
+        }      
+
+    } 
+}).single("tiedosto");
 
 app.set("view engine", "ejs");
 
 app.use(express.static(path.resolve(__dirname, "public")));
 
-app.post("/lisaa", uploadKasittelija.single("tiedosto"), async (req : express.Request, res : express.Response) => {
-  
-    let tiedostonimi : string = `${req.file?.filename}.jpg`;
+app.post("/lisaa", async (req : express.Request, res : express.Response) => {
 
-    await fs.copyFile(path.resolve(__dirname, "tmp", String(req.file?.filename)), path.resolve(__dirname, "public", "img", tiedostonimi));
+    uploadKasittelija(req, res, async (err : any) => {  
 
-    await prisma.kuva.create({
-        data : {
-            teksti : req.body.teksti || "Nimetön kuva",
-            tiedosto : tiedostonimi
+        if (err instanceof multer.MulterError) {
+
+            res.render("lisaa", { virhe : "Tiedosto on tiedostokooltaan liian suuri (> 500 kt)", teksti : req.body.teksti});
+
+        } else if (err) {
+
+            res.render("lisaa", { virhe : "Virheellinen tiedostomuoto. Käytä ainoastaan jpg-kuvia", teksti : req.body.teksti});
+
+        } else {
+
+            if (req.file) {
+
+                let tiedostonimi : string = `${req.file.filename}.jpg`;
+
+                await fs.copyFile(path.resolve(__dirname, "tmp", String(req.file.filename)), path.resolve(__dirname, "public", "img", tiedostonimi));
+
+                await prisma.kuva.create({
+                    data : {
+                        teksti : req.body.teksti || "Nimetön kuva",
+                        tiedosto : tiedostonimi
+                    }
+                });
+
+            }
+
+            res.redirect("/");
+
         }
-    });
 
-    res.redirect("/");
+    });
 
 });
 
 app.get("/lisaa", async (req : express.Request, res : express.Response) => {
   
-    res.render("lisaa");
+    res.render("lisaa", { virhe : "", teksti : "" });
 
 });
 

@@ -2,10 +2,16 @@
 
 <h2>Lisää uusi kuva palvelimelle</h2>
 
+<% if (Boolean(virhe)) { %>
+
+    <div class="virhe"><%= virhe %></div>
+
+<% } %>
+
 <form action="/lisaa" method="POST" enctype="multipart/form-data">
 
     <div class="mdl-textfield">
-        <input type="text" class="mdl-textfield__input" name="teksti" id="teksti">
+        <input type="text" class="mdl-textfield__input" name="teksti" id="teksti" value="<%= teksti %>">
         <label class="mdl-textfield__label" for="teksti">Kuvateksti</label>
     </div> 
 

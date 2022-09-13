@@ -12,7 +12,7 @@
 
                 <img src="/img/<%=kuva.tiedosto%>" alt="<%=kuva.teksti%>">
 
-                <p><%=kuva.pvm%></p>
+                <p><%= new Date(kuva.pvm).toLocaleString() %></p>
 
             <% }); %>
 
