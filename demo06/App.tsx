@@ -1,7 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text } from 'react-native';
-import { Appbar, Dialog, Button, TextInput, Portal, Provider, Title } from 'react-native-paper';
+import { Appbar, Dialog, Button, IconButton, List, TextInput, Portal, Provider, Title } from 'react-native-paper';
 import * as SQLite from 'expo-sqlite';
 
 interface DialogiData {
@@ -11,7 +11,8 @@ interface DialogiData {
 
 interface Ostos {
   id : number,
-  ostos : string
+  ostos : string,
+  poimittu : number
 }
 
 const db : SQLite.WebSQLDatabase = SQLite.openDatabase("ostoslista.db");
@@ -20,7 +21,8 @@ db.transaction(
   (tx : SQLite.SQLTransaction) => {
     tx.executeSql(`CREATE TABLE IF NOT EXISTS ostokset (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    ostos TEXT
+                    ostos TEXT,
+                    poimittu INTEGER
                   )`);
   }, 
   (err: SQLite.SQLError) => {
@@ -40,7 +42,27 @@ export default function App() {
 
     db.transaction(
       (tx : SQLite.SQLTransaction) => {
-        tx.executeSql(`INSERT INTO ostokset (ostos) VALUES (?) `, [dialogi.teksti]);
+        tx.executeSql(`INSERT INTO ostokset (ostos, poimittu) VALUES (?, ?) `, [dialogi.teksti, 0], 
+        (_tx : SQLite.SQLTransaction, rs : SQLite.SQLResultSet) => {
+          haeOstokset();
+        });
+      }, 
+      (err: SQLite.SQLError) => console.log(err), 
+      () => console.log("Ostos lisätty!")  
+    );
+
+    setDialogi({auki : false, teksti : ""});
+
+  }
+
+  const poimiOstos = (id : number, tila : number) : void => {
+
+    db.transaction(
+      (tx : SQLite.SQLTransaction) => {
+        tx.executeSql(`UPDATE ostokset SET poimittu = ? WHERE id = ? `, [tila, id], 
+        (_tx : SQLite.SQLTransaction, rs : SQLite.SQLResultSet) => {
+          haeOstokset();
+        });
       }, 
       (err: SQLite.SQLError) => console.log(err), 
       () => console.log("Ostos lisätty!")  
@@ -66,6 +88,22 @@ export default function App() {
 
   }
 
+  const tyhjennaOstoslista = () : void => {
+
+    db.transaction(
+        (tx : SQLite.SQLTransaction) => {
+          tx.executeSql(`DELETE FROM ostokset`, [], 
+          (_tx : SQLite.SQLTransaction, rs : SQLite.SQLResultSet) => {
+            haeOstokset();
+          });
+        }, 
+        (err: SQLite.SQLError) => console.log(err), 
+        () => console.log("Lista tyhjennetty")  
+     );
+
+
+  }
+
   useEffect(() => {
 
     haeOstokset();
@@ -82,7 +120,14 @@ export default function App() {
         <Title>Ostoslista</Title>
 
         { (ostokset.length > 0)
-        ? <Text>ostokset tähän</Text>
+        ? ostokset.map((ostos: Ostos, idx : number) => <List.Item 
+                                                          title={ostos.ostos} 
+                                                          key={idx} 
+                                                          left={() => <IconButton 
+                                                                        icon={(ostos.poimittu === 0)?"checkbox-blank-outline":"checkbox-outline"}
+                                                                        onPress={() => { poimiOstos(ostos.id, (ostos.poimittu === 0)?1:0) }} 
+                                                                      />}
+                                                        />) 
         : <Text>Ei ostoksia</Text>      
         }
 
@@ -92,6 +137,14 @@ export default function App() {
           icon="plus"
           onPress={ () => setDialogi({auki: true, teksti: ""}) }
         >Lisää uusi ostos</Button>
+
+        <Button
+          style={{ marginTop : 20 }}
+          buttonColor="red"
+          mode='contained'
+          icon="delete"
+          onPress={tyhjennaOstoslista}
+        >Tyhjennä lista</Button>
 
         <Portal>
           <Dialog 
