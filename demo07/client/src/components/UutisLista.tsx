@@ -1,52 +1,32 @@
-import { Container, Typography } from '@mui/material';
-import React, { useState } from 'react'
+import { Container, List, Typography } from '@mui/material';
+import React, { useContext, useState } from 'react'
+import { UutinenContext, Uutinen as UutinenT } from '../context/UutinenContext';
 import Uutinen from './Uutinen';
-
-interface Uutinen {
-    id : number,
-    otsikko : string,
-    sisalto? : string,
-    julkaistu? : Date,
-    kuva? : string,
-    linkki? : string
-}
 
 const UutisLista : React.FC = () : React.ReactElement => {
 
-    const [uutiset, setUutiset] = useState<Uutinen[]>([
-                                                    {
-                                                        id : 1,
-                                                        otsikko : "Uutinen 1"
-                                                    }
-                                                    ,
-                                                    {
-                                                        id : 2,
-                                                        otsikko : "Uutinen 3"
-                                                    },
-                                                    {
-                                                        id : 3,
-                                                        otsikko : "Uutinen 3"
-                                                    }
-                                                ]);
+    const { uutiset } = useContext(UutinenContext);
 
-  return (
-    <Container>
-    
-    <Typography variant='h5' sx={{marginTop: "20px"}}>Ylen tuoreimmat uutiset</Typography>
+    return (
+        <Container>
+        
+        <Typography variant='h5' sx={{marginTop: "20px"}}>Ylen tuoreimmat uutiset</Typography>
 
-    <Typography variant='body2'>Päivitetty: ??</Typography>
+        <Typography variant='body2'>Päivitetty: ??</Typography>
 
-    {uutiset.map((uutinen : Uutinen, idx : number) => {
+        <List>
+        {uutiset.map((uutinen : UutinenT, idx : number) => {
 
-        return (
-            <Uutinen key={idx}/>
-        ) 
+            return (
+                <Uutinen key={idx}/>
+            ) 
 
-    })}
+        })}
+        </List>
 
 
-    </Container>
-  )
+        </Container>
+    )
 }
 
 export default UutisLista;
