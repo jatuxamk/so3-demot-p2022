@@ -1,24 +1,24 @@
 import { Container, List, Typography } from '@mui/material';
-import React, { useContext, useState } from 'react'
+import React, { useContext } from 'react'
 import { UutinenContext, Uutinen as UutinenT } from '../context/UutinenContext';
 import Uutinen from './Uutinen';
 
 const UutisLista : React.FC = () : React.ReactElement => {
 
-    const { uutiset } = useContext(UutinenContext);
+    const { apiData } = useContext(UutinenContext);
 
     return (
         <Container>
         
         <Typography variant='h5' sx={{marginTop: "20px"}}>Ylen tuoreimmat uutiset</Typography>
 
-        <Typography variant='body2'>Päivitetty: ??</Typography>
+        <Typography variant='body2'>Päivitetty: {new Date(apiData.paivitetty).toLocaleString()}</Typography>
 
         <List>
-        {uutiset.map((uutinen : UutinenT, idx : number) => {
+        {apiData.uutiset.map((uutinen : UutinenT, idx : number) => {
 
             return (
-                <Uutinen key={idx}/>
+                <Uutinen key={idx} uutinen={uutinen}/>
             ) 
 
         })}

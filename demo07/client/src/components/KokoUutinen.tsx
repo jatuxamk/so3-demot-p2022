@@ -1,20 +1,36 @@
 import { Button, Container, Stack, Typography } from '@mui/material';
-import React, { useContext } from 'react'
-import { Link } from 'react-router-dom';
+import React, { useContext, useEffect } from 'react'
+import { Link, useParams } from 'react-router-dom';
 import { UutinenContext } from '../context/UutinenContext';
 
 const KokoUutinen : React.FC = () : React.ReactElement => {
 
-  const koe = useContext(UutinenContext);
+  const { id } = useParams();
+
+  const {apiData, luetut, setLuetut} = useContext(UutinenContext);
+
+  const uutinen = apiData.uutiset.find((uutinen : any) => uutinen.id === id);
+
+  useEffect(() => {
+
+    setLuetut(new Set([...luetut, id]))
+
+  }, []);
 
   return (
     <Container>
 
       <Stack spacing={2}>
 
-      <Typography variant='h5' sx={{marginTop: "20px"}}>Uutisen otsikko</Typography>
+      <Typography variant='h5' sx={{marginTop: "20px"}}>{uutinen.otsikko}</Typography>
 
-      <Typography variant='body2'>Lorem ipsum...?? {JSON.stringify(koe)}</Typography>
+      <Typography variant='body2'>{new Date(uutinen.julkaistu!).toLocaleString()}</Typography>
+
+
+
+      <img src={uutinen.kuva}/>
+
+      <Typography variant='body2'>{uutinen.sisalto}</Typography>
 
       <Button
         variant="contained"
