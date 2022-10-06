@@ -1,44 +1,58 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import CheckBoxOutlineBlank from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBox from '@mui/icons-material/CheckBox';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { IconButton, List, ListItem, ListItemIcon, ListItemText } from '@mui/material';
-
-
-interface Tehtava {
-  id : number,
-  nimi : string,
-  suoritettu : boolean
-}
+import { AppDispatch, RootState } from '../redux/store';
+import { haeTehtavat, tallennaTehtavat, Tehtava, vaihdaSuoritettu } from '../redux/tehtavalistaSlice';
+import PoistaTehtava from './PoistaTehtava';
+import { hasUncaughtExceptionCaptureCallback } from 'process';
 
 const Tehtavalista : React.FC = () : React.ReactElement => {
 
-  const [tehtavat] = useState<Tehtava[]>([{
-                                            id : 1,
-                                            nimi : "Käy kaupassa",
-                                            suoritettu : false
-                                          },
-                                          {
-                                            id : 2,
-                                            nimi : "Siivoa",
-                                            suoritettu : false
-                                          },
-                                          {
-                                            id : 3,
-                                            nimi : "Ulkoiluta koiraa",
-                                            suoritettu : false
-                                          }]);
+  const haettu : React.MutableRefObject<boolean> = useRef<boolean>(false);
+
+  const [poistoDialogi, setPoistoDialogi] = useState<any>({
+                                                            tehtava : {},
+                                                            auki : false
+                                                          });
+
+  const tehtavat = useSelector((state : RootState) => state.tehtavalista.tehtavat);
+
+  const dispatch : AppDispatch = useDispatch();
+
+  useEffect(() => {
+
+    if (!haettu.current) {
+
+      dispatch(haeTehtavat());
+
+    }
+
+    return () => { haettu.current = true }
+
+  }, [dispatch]);
 
   return (
+    <>
     <List>
       {tehtavat.map((tehtava : Tehtava, idx : number) => {
         return (<ListItem
-                    secondaryAction={<IconButton>
+                    key={idx}
+                    secondaryAction={<IconButton
+                                        onClick={() => setPoistoDialogi({tehtava : tehtava, auki : true})}
+                                      >
                                         <DeleteIcon />
-                    </IconButton>}
+                                      </IconButton>}
                   >
                   <ListItemIcon>
-                  <IconButton>
+                  <IconButton
+                    onClick={() => {
+                      dispatch(vaihdaSuoritettu(tehtava.id));
+                      dispatch(tallennaTehtavat());
+                    }}
+                  >
                     {(tehtava.suoritettu) ? <CheckBox/> : <CheckBoxOutlineBlank/>}
                   </IconButton>
                   </ListItemIcon>
@@ -48,6 +62,8 @@ const Tehtavalista : React.FC = () : React.ReactElement => {
                 </ListItem>)
       })}
     </List>
+    <PoistaTehtava poistoDialogi={poistoDialogi} setPoistoDialogi={setPoistoDialogi}/>
+    </>
   )
 }
 

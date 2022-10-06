@@ -16,9 +16,9 @@ app.use(express.json());
 
 app.post("/api/tehtavalista", async (req : express.Request, res : express.Response) : Promise<void>=> {
 
-    console.log("POST", req.body.tehtavalista.value);
+    console.log("POST", req.body.tehtavalista.tehtavat);
 
-    await fs.writeFile(path.resolve(__dirname, "data", "tehtavalista.json"), JSON.stringify(req.body.tehtavalista.value, null, 2), {encoding : "utf-8"});
+    await fs.writeFile(path.resolve(__dirname, "data", "tehtavalista.json"), JSON.stringify(req.body.tehtavalista.tehtavat, null, 2), {encoding : "utf-8"});
 
     res.json({});
 
